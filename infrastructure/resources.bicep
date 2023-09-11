@@ -30,9 +30,9 @@ resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2023-04-01-p
   // resource apexCert 'managedCertificates' existing = {
   //   name: '${replace(apexHostName, '.', '-')}-cert'
   // }
-  resource apiCert 'managedCertificates' existing = {
-    name: '${replace(apiHostName, '.', '-')}-cert'
-  }
+  // resource apiCert 'managedCertificates' existing = {
+  //   name: '${replace(apiHostName, '.', '-')}-cert'
+  // }
 }
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2022-12-01' existing = {
   name: containerRegistryName
@@ -87,7 +87,7 @@ resource apiContainerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
           {
             name: apiHostName
             bindingType: 'Disabled'
-            certificateId: containerAppEnvironment::apiCert.id
+            //            certificateId: containerAppEnvironment::apiCert.id
           }
         ]
       }

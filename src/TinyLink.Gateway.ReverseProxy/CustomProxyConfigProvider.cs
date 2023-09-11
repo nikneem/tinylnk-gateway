@@ -35,7 +35,7 @@ namespace TinyLink.Gateway.ReverseProxy
                     LoadBalancingPolicy = LoadBalancingPolicies.RoundRobin,
                     Destinations = new Dictionary<string, DestinationConfig>
                     {
-                        { "default", new DestinationConfig { Address = "https://api.tinylnk.nl" } }
+                        { "default", new DestinationConfig { Address = "http://tinylnk-api-ne" } }
                     }
                 }
             };

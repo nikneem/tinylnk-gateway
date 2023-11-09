@@ -3,7 +3,7 @@ using Yarp.ReverseProxy.LoadBalancing;
 
 namespace TinyLink.Gateway.ReverseProxy
 {
-    public class CustomProxyConfigProvider: IProxyConfigProvider
+    public class CustomProxyConfigProvider : IProxyConfigProvider
     {
 
         private CustomMemoryConfig _config;
@@ -15,7 +15,7 @@ namespace TinyLink.Gateway.ReverseProxy
         {
             // Load a basic configuration
             // Should be based on your application needs.
-            var routeConfig = new RouteConfig
+            var shortLinksRouteConfig = new RouteConfig
             {
                 RouteId = "shortLinksRoute",
                 ClusterId = "shortLinksCluster",
@@ -25,7 +25,19 @@ namespace TinyLink.Gateway.ReverseProxy
                 }
             };
 
-            var routeConfigs = new[] { routeConfig };
+            var hitsRouteConfig = new RouteConfig
+            {
+                RouteId = "hitsRoute",
+                ClusterId = "hitsCluster",
+                Match = new RouteMatch
+                {
+                    Path = "/api/hits/{**catch-all}"
+                }
+            };
+
+
+
+            var routeConfigs = new[] { shortLinksRouteConfig, hitsRouteConfig };
 
             var clusterConfigs = new[]
             {
@@ -37,7 +49,18 @@ namespace TinyLink.Gateway.ReverseProxy
                     {
                         { "default", new DestinationConfig { Address = "http://tinylnk-api-ne-ca" } }
                     }
+                },
+                                new ClusterConfig
+                {
+                    ClusterId = "hitsCluster",
+                    LoadBalancingPolicy = LoadBalancingPolicies.RoundRobin,
+                    Destinations = new Dictionary<string, DestinationConfig>
+                    {
+                        { "default", new DestinationConfig { Address = "http://tinylnk-hits-ne-ca" } }
+                    }
                 }
+
+
             };
 
             _config = new CustomMemoryConfig(routeConfigs, clusterConfigs);

@@ -2,45 +2,37 @@ param containerVersion string
 param location string
 param integrationResourceGroupName string
 param containerAppEnvironmentName string
-param containerRegistryName string
-param applicationInsightsName string
-param serviceBusName string
+
+param integrationEnvironment object
+//  = {
+//   resourceGroupName: 'mvp-int-env'
+//   containerRegistryName: 'nvv54gsk4pteu'
+//   applicationInsights: 'mvp-int-env-ai'
+//   appConfiguration: 'mvp-int-env-appcfg'
+//   keyVault: 'mvp-int-env-kv'
+//   logAnalytics: 'mvp-int-env-log'
+// }
 
 var systemName = 'tinylnk-proxy'
 var defaultResourceName = '${systemName}-ne'
 var containerRegistryPasswordSecretRef = 'container-registry-password'
 
-var tables = [
-  'shortlinks'
-  'hits'
-  'hitsbytenminutes'
-  'hitstotal'
-]
-var hitsQueueNames = [
-  'hitsprocessorqueue'
-  'hitscumulatorqueue'
-]
-
-//var apexHostName = 'tinylnk.nl'
 var apiHostName = 'proxy.tinylnk.nl'
 
 resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2023-04-01-preview' existing = {
   name: containerAppEnvironmentName
   scope: resourceGroup(integrationResourceGroupName)
-  // resource apexCert 'managedCertificates' existing = {
-  //   name: '${replace(apexHostName, '.', '-')}-cert'
-  // }
   resource apiCert 'managedCertificates' existing = {
     name: '${replace(apiHostName, '.', '-')}-cert'
   }
 }
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2022-12-01' existing = {
-  name: containerRegistryName
-  scope: resourceGroup(integrationResourceGroupName)
+  name: integrationEnvironment.containerRegistryName
+  scope: resourceGroup(integrationEnvironment.resourceGroupName)
 }
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' existing = {
-  name: applicationInsightsName
-  scope: resourceGroup(integrationResourceGroupName)
+  name: integrationEnvironment.applicationInsights
+  scope: resourceGroup(integrationEnvironment.resourceGroupName)
 }
 
 resource apiContainerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
@@ -79,11 +71,6 @@ resource apiContainerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
           ]
         }
         customDomains: [
-          // {
-          //   name: 'tinylnk.nl'
-          //   bindingType: 'SniEnabled'
-          //   certificateId: containerAppEnvironment::apexCert.id
-          // }
           {
             name: apiHostName
             bindingType: 'SniEnabled'
